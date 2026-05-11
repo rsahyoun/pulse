@@ -258,11 +258,14 @@ export default function App() {
   const [editingEvent, setEditingEvent] = useState(null);
   // When set, the condition modal opens in edit mode for this condition.
   const [editingCondition, setEditingCondition] = useState(null);
+  // When set, the patient modal opens in edit mode for this patient.
+  const [editingPatient, setEditingPatient] = useState(null);
   const closeModal = () => {
     setOpenModal(null);
     setEditingMedication(null);
     setEditingEvent(null);
     setEditingCondition(null);
+    setEditingPatient(null);
   };
 
   const patient = useMemo(
@@ -768,7 +771,10 @@ export default function App() {
           patients={patients}
           selectedId={selectedPatientId}
           onSelect={setSelectedPatientId}
-          onAdd={() => setOpenModal('patient')}
+          onAdd={() => {
+            setEditingPatient(null);
+            setOpenModal('patient');
+          }}
         />
         {page === 'history' ? (
           patient ? (
@@ -796,7 +802,10 @@ export default function App() {
                     conditions={conditions[selectedPatientId] || []}
                     onAddCondition={() => setOpenModal('condition')}
                     onEditCondition={startEditCondition}
-                    onEdit={() => setOpenModal('patient')}
+                    onEdit={() => {
+                      setEditingPatient(patient);
+                      setOpenModal('patient');
+                    }}
                   />
                   <MedicationGrid
                     medications={medications[selectedPatientId] || []}
@@ -878,14 +887,15 @@ export default function App() {
 
       <Modal
         open={openModal === 'patient'}
-        title={patient && openModal === 'patient' ? "Edit patient" : "Add patient"}
+        title={editingPatient ? "Edit patient" : "Add patient"}
         onClose={closeModal}
       >
         <AddPatientForm
-          initialData={openModal === 'patient' ? patient : null}
+          key={editingPatient?.id || 'new'}
+          initialData={editingPatient}
           onSubmit={addPatient}
-          onArchive={() => handleArchivePatient(selectedPatientId, patient?.status)}
-          onDelete={() => handleDeletePatient(selectedPatientId, patient?.fullName)}
+          onArchive={() => handleArchivePatient(editingPatient?.id, editingPatient?.status)}
+          onDelete={() => handleDeletePatient(editingPatient?.id, editingPatient?.fullName)}
           onCancel={closeModal}
         />
       </Modal>

@@ -17,10 +17,10 @@ from routes import patients, medications, events, notes, personal_notes, history
 async def lifespan(app: FastAPI):
     try:
         await seed_mock_data()
-        print("✓ MongoDB connected and seeded.")
+        print("[OK] MongoDB connected and seeded.")
     except Exception as e:
-        print(f"⚠ MongoDB unavailable ({e.__class__.__name__}): {e}")
-        print("  Backend will run without database — connect MongoDB to enable persistence.")
+        print(f"[WARNING] MongoDB unavailable ({e.__class__.__name__}): {e}")
+        print("  Backend will run without database - connect MongoDB to enable persistence.")
     yield
 
 
