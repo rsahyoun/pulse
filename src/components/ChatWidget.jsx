@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import styles from './ChatWidget.module.css';
+import { API_URL } from '../config';
 
-const BACKEND = 'http://localhost:8000/api';
+const BACKEND = API_URL;
 
 /** Render plain text that may contain **bold**, bullet points, and newlines. */
 function MessageText({ text }) {
@@ -87,7 +88,7 @@ export default function ChatWidget({ selectedPatientId, patientName }) {
         ...prev,
         {
           role: 'ai',
-          text: `Sorry, I couldn't reach the AI right now. (${err.message})\n\nMake sure the backend is running at localhost:8000.`,
+          text: `Sorry, I couldn't reach the AI right now. (${err.message})\n\nPlease try again later.`,
           error: true,
         },
       ]);

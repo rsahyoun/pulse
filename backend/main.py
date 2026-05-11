@@ -5,12 +5,19 @@ Serves patient data from MongoDB and proxies AI requests to the CaregiverAgent.
 Run:
     uvicorn main:app --reload --port 8000
 """
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from contextlib import asynccontextmanager
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from services.mongodb import seed_mock_data
 from routes import patients, medications, events, notes, personal_notes, history, ai
+
+# CORS: Allow frontend origins from environment or use defaults
+CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")
 
 
 @asynccontextmanager
@@ -33,7 +40,7 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=CORS_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

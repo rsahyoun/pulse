@@ -28,6 +28,7 @@ import {
   personalNotes as initialPersonalNotes,
   eventLegend,
 } from './data/mockData';
+import { API_URL } from './config';
 import './App.css';
 
 function localTodayIso() {
@@ -124,7 +125,7 @@ export default function App() {
     if (!patientId) return;
     setAiSummaries(prev => ({ ...prev, [patientId]: { data: prev[patientId]?.data, loading: true } }));
     try {
-      const res = await fetch(`http://localhost:8000/api/ai/weekly-summary/${patientId}`);
+      const res = await fetch(`${API_URL}/ai/weekly-summary/${patientId}`);
       if (res.ok) {
         const data = await res.json();
         setAiSummaries(prev => ({ ...prev, [patientId]: { data, loading: false } }));
@@ -143,7 +144,7 @@ export default function App() {
     if (!window.confirm(`${action} this patient?`)) return;
 
     try {
-      const response = await fetch(`http://localhost:8000/api/patients/${patientId}/status`, {
+      const response = await fetch(`${API_URL}/patients/${patientId}/status`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status: newStatus }),
@@ -169,7 +170,7 @@ export default function App() {
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/patients/${patientId}`, {
+      const response = await fetch(`${API_URL}/patients/${patientId}`, {
         method: 'DELETE',
       });
       if (response.ok) {
@@ -186,7 +187,7 @@ export default function App() {
 
   useEffect(() => {
     async function fetchData() {
-      const base = 'http://localhost:8000/api';
+      const base = API_URL;
 
       // Fetch patients list with retry so a slow backend start doesn't leave
       // the sidebar blank. mockPatients already seeds the UI, so this is a
@@ -302,8 +303,8 @@ export default function App() {
     const isEdit = !!patientData.id;
     const method = isEdit ? 'PATCH' : 'POST';
     const url = isEdit
-      ? `http://localhost:8000/api/patients/${patientData.id}`
-      : 'http://localhost:8000/api/patients/';
+      ? `${API_URL}/patients/${patientData.id}`
+      : `${API_URL}/patients/`;
 
     try {
       const response = await fetch(url, {
@@ -328,7 +329,7 @@ export default function App() {
 
   const addMedication = async (newMed) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/medications`, {
+      const response = await fetch(`${API_URL}/patients/${selectedPatientId}/medications`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newMed),
@@ -349,7 +350,7 @@ export default function App() {
   };
   const addCondition = async (newCondition) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/conditions`, {
+      const response = await fetch(`${API_URL}/patients/${selectedPatientId}/conditions`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newCondition),
@@ -370,7 +371,7 @@ export default function App() {
   const editCondition = async (updated) => {
     const { id, ...patch } = updated;
     try {
-      const response = await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/conditions/${id}`, {
+      const response = await fetch(`${API_URL}/patients/${selectedPatientId}/conditions/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patch),
@@ -392,7 +393,7 @@ export default function App() {
 
   const deleteCondition = async (id) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/conditions/${id}`, {
+      const response = await fetch(`${API_URL}/patients/${selectedPatientId}/conditions/${id}`, {
         method: 'DELETE',
       });
       if (response.ok || response.status === 204) {
@@ -413,7 +414,7 @@ export default function App() {
   };
   const addEvent = async (newEvent) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/events`, {
+      const response = await fetch(`${API_URL}/patients/${selectedPatientId}/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newEvent),
@@ -434,7 +435,7 @@ export default function App() {
   const editEvent = async (updatedEvent) => {
     const { id, ...patch } = updatedEvent;
     try {
-      const response = await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/events/${id}`, {
+      const response = await fetch(`${API_URL}/patients/${selectedPatientId}/events/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(patch),
@@ -456,7 +457,7 @@ export default function App() {
 
   const deleteEvent = async (id) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/events/${id}`, {
+      const response = await fetch(`${API_URL}/patients/${selectedPatientId}/events/${id}`, {
         method: 'DELETE',
       });
       if (response.ok || response.status === 204) {
@@ -479,7 +480,7 @@ export default function App() {
   // Adds a calendar event without closing any modal (used by DoctorNote AI actions)
   const addEventDirect = async (newEvent) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/events`, {
+      const response = await fetch(`${API_URL}/patients/${selectedPatientId}/events`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(newEvent),
@@ -523,7 +524,7 @@ export default function App() {
   const deleteNote = async (noteId) => {
     if (!window.confirm('Delete this doctor\'s note? This cannot be undone.')) return;
     try {
-      await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/notes/${noteId}`, {
+      await fetch(`${API_URL}/patients/${selectedPatientId}/notes/${noteId}`, {
         method: 'DELETE',
       });
       setNotes(prev => ({
@@ -551,7 +552,7 @@ export default function App() {
       formData.append('author', author);
       formData.append('week_of', weekOf);
 
-      const response = await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/notes/upload`, {
+      const response = await fetch(`${API_URL}/patients/${selectedPatientId}/notes/upload`, {
         method: 'POST',
         body: formData,
       });
@@ -594,7 +595,7 @@ export default function App() {
 
   const addPersonalNote = async (note) => {
     try {
-      const response = await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/personal-notes`, {
+      const response = await fetch(`${API_URL}/patients/${selectedPatientId}/personal-notes`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(note),
@@ -612,7 +613,7 @@ export default function App() {
   };
   const deletePersonalNote = async (id) => {
     try {
-      await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/personal-notes/${id}`, {
+      await fetch(`${API_URL}/patients/${selectedPatientId}/personal-notes/${id}`, {
         method: 'DELETE',
       });
       setPersonalNotes((prev) => ({
@@ -626,7 +627,7 @@ export default function App() {
   const editPersonalNote = async (id, patch) => {
     const fields = typeof patch === 'string' ? { body: patch } : patch;
     try {
-      const response = await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/personal-notes/${id}`, {
+      const response = await fetch(`${API_URL}/patients/${selectedPatientId}/personal-notes/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(fields),
@@ -648,7 +649,7 @@ export default function App() {
     const note = (personalNotes[selectedPatientId] || []).find((n) => n.id === id);
     if (!note) return;
     try {
-      const response = await fetch(`http://localhost:8000/api/patients/${selectedPatientId}/personal-notes/${id}`, {
+      const response = await fetch(`${API_URL}/patients/${selectedPatientId}/personal-notes/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ done: !note.done }),
