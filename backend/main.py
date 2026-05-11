@@ -17,7 +17,9 @@ from services.mongodb import seed_mock_data
 from routes import patients, medications, events, notes, personal_notes, history, ai
 
 # CORS: Allow frontend origins from environment or use defaults
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000").split(",")
+# Use "*" to allow all origins (for hackathon/demo purposes)
+_cors_env = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:3000")
+CORS_ORIGINS = ["*"] if _cors_env == "*" else [o.strip() for o in _cors_env.split(",")]
 
 
 @asynccontextmanager
@@ -38,10 +40,11 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
+# When using wildcard origins, credentials must be False
 app.add_middleware(
     CORSMiddleware,
     allow_origins=CORS_ORIGINS,
-    allow_credentials=True,
+    allow_credentials=CORS_ORIGINS != ["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
